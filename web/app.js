@@ -348,6 +348,117 @@ function updateOnline() {
   $("#offline").hidden = navigator.onLine;
 }
 
+// ── 푸시 알림 설정 ──
+// 서버가 없는 정적 앱이라, 이 기기의 구독 정보를 '알림 코드'로 만들어 GitHub Secret(PUSH_SUBSCRIPTIONS)에 직접 등록해요.
+let pushCfg = null;
+const isIOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+const isStandalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+const pushSupported = "serviceWorker" in navigator && "PushManager" in window && "Notification" in window;
+
+function b64urlToBytes(s) {
+  const pad = "=".repeat((4 - (s.length % 4)) % 4);
+  const bin = atob((s + pad).replace(/-/g, "+").replace(/_/g, "/"));
+  return Uint8Array.from(bin, (c) => c.charCodeAt(0));
+}
+const toCode = (sub) => btoa(unescape(encodeURIComponent(JSON.stringify(sub.toJSON())))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+
+async function currentSub() {
+  if (!pushSupported) return null;
+  const reg = await navigator.serviceWorker.ready;
+  return reg.pushManager.getSubscription();
+}
+
+async function refreshBell() {
+  const sub = await currentSub().catch(() => null);
+  $("#bellBtn").classList.toggle("on", !!sub && Notification.permission === "granted");
+}
+
+async function openPush() {
+  $("#pushDialog").showModal();
+  renderPush();
+}
+
+async function renderPush(msg) {
+  const body = $("#pushBody");
+  const repo = pushCfg?.repo;
+  if (!pushSupported) {
+    body.replaceChildren(
+      isIOS && !isStandalone
+        ? el("div", {},
+            el("p", {}, "아이폰은 홈 화면에 추가한 앱에서만 알림을 받을 수 있어요."),
+            el("ol", { class: "steps" },
+              el("li", {}, "Safari 아래쪽 공유 버튼(□↑)을 눌러요"),
+              el("li", {}, "‘홈 화면에 추가’를 눌러요"),
+              el("li", {}, "홈 화면의 리포트 브리프 앱을 열고 🔔을 다시 눌러요")
+            ),
+            el("p", { class: "muted" }, "iOS 16.4 이상이 필요해요."))
+        : el("p", {}, "이 브라우저는 푸시 알림을 지원하지 않아요. Chrome·Edge·Safari 최신 버전에서 열어 주세요.")
+    );
+    return;
+  }
+  if (Notification.permission === "denied") {
+    body.replaceChildren(el("p", {}, "알림이 차단돼 있어요. 기기·브라우저 설정에서 이 앱의 알림을 허용한 뒤 다시 눌러 주세요."));
+    return;
+  }
+  const sub = await currentSub();
+  if (!sub) {
+    body.replaceChildren(
+      el("p", {}, "매일 12시 수집 후 새 보고서가 있으면 이 기기로 알려 드려요."),
+      msg ? el("p", { class: "muted" }, msg) : null,
+      el("div", { class: "btn-row" }, el("button", { class: "btn primary", onclick: enablePush }, "알림 켜기"))
+    );
+    return;
+  }
+  const code = toCode(sub);
+  body.replaceChildren(
+    el("p", {}, "✅ 이 기기에서 알림을 받을 준비가 됐어요. 마지막으로 아래 알림 코드를 GitHub에 한 번만 등록해 주세요."),
+    el("textarea", { class: "code-box", readonly: "", "aria-label": "알림 코드", onclick: (e) => e.target.select() }, code),
+    el("ol", { class: "steps" },
+      el("li", {}, el("button", { class: "btn", onclick: (e) => copyCode(code, e.target) }, "코드 복사")),
+      el("li", {}, el("a", { class: "btn", href: `https://github.com/${repo}/settings/secrets/actions/new`, target: "_blank", rel: "noopener" }, "GitHub 등록 화면 열기 ↗")),
+      el("li", {}, "Name에 ", el("code", {}, "PUSH_SUBSCRIPTIONS"), ", Secret에 복사한 코드를 붙여넣고 ‘Add secret’을 눌러요"),
+      el("li", {}, el("a", { class: "btn", href: `https://github.com/${repo}/actions/workflows/push-test.yml`, target: "_blank", rel: "noopener" }, "테스트 알림 보내기 ↗"), el("br"), el("span", { class: "muted" }, "‘Run workflow’를 누르면 1분 안에 알림이 와요"))
+    ),
+    el("p", { class: "muted" }, "여러 기기에서 받으려면 기기마다 코드를 만들어 줄바꿈으로 이어서 한 Secret에 넣어요. 이미 등록돼 있으면 ‘Update’로 바꿔요."),
+    el("div", { class: "btn-row" },
+      el("button", { class: "btn ghost", onclick: disablePush }, "이 기기 알림 끄기")
+    )
+  );
+}
+
+async function copyCode(code, btn) {
+  try { await navigator.clipboard.writeText(code); btn.textContent = "복사했어요 ✓"; }
+  catch { $(".code-box").select(); btn.textContent = "코드를 길게 눌러 복사해 주세요"; }
+}
+
+async function enablePush() {
+  try {
+    if (!pushCfg) pushCfg = await getJson("push-config.json");
+    const perm = await Notification.requestPermission();
+    if (perm !== "granted") return renderPush("알림을 허용해야 받을 수 있어요.");
+    const reg = await navigator.serviceWorker.ready;
+    await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64urlToBytes(pushCfg.vapidPublicKey) });
+    await reg.showNotification("리포트 브리프", { body: "이 기기에서 알림을 받을 수 있어요 🎉", icon: "icons/icon-192.png", tag: "local-test" });
+  } catch (e) {
+    return renderPush(`알림을 켜지 못했어요: ${e.message}`);
+  }
+  refreshBell();
+  renderPush();
+}
+
+async function disablePush() {
+  const sub = await currentSub();
+  await sub?.unsubscribe();
+  refreshBell();
+  renderPush("이 기기의 알림을 껐어요. GitHub에 등록한 코드도 지우면 깔끔해요.");
+}
+
+$("#bellBtn").addEventListener("click", openPush);
+$("#pushClose").addEventListener("click", () => $("#pushDialog").close());
+$("#pushDialog").addEventListener("click", (e) => { if (e.target.id === "pushDialog") e.target.close(); });
+getJson("push-config.json").then((c) => (pushCfg = c)).catch(() => {});
+if (pushSupported) navigator.serviceWorker.ready.then(refreshBell);
+
 if ("serviceWorker" in navigator) {
   addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
 }

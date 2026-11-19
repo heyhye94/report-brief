@@ -81,6 +81,7 @@ async function main() {
   const dayPath = path.join(DATA_DIR, "days", `${today}.json`);
   const day = await readJson(dayPath, { date: today, reports: [], digest: null });
   const usage = { input: 0, output: 0 };
+  const added = []; // 이번 실행에서 새로 요약된 보고서 (푸시 알림용)
 
   for (const { item, source } of queue) {
     let detail = null;
@@ -121,6 +122,7 @@ async function main() {
         partial: !!detail?.truncated,
         summary: summary.pending ? null : summary,
       });
+      if (!summary.pending) added.push({ title: item.title, sourceName: source.name, topic: topic ?? null });
       console.log(`   ✓ ${source.id}: ${item.title}`);
     } catch (e) {
       console.warn(`   요약 실패 [${source.id}] ${item.title}: ${e.message}`);
@@ -158,6 +160,11 @@ async function main() {
     sources: SOURCES.map(({ id, name, category, url }) => ({ id, name, category, url, health: health[id] ?? null })),
     days: days.slice(0, 120),
   });
+
+  // GitHub Actions 다음 단계(푸시 알림)에 결과 전달
+  const result = { date: today, newCount: added.length, headline: day.digest?.headline ?? null, added };
+  await writeJson(path.join(import.meta.dirname, "../.last-run.json"), result);
+  if (process.env.GITHUB_OUTPUT) await fs.appendFile(process.env.GITHUB_OUTPUT, `new_count=${added.length}\n`);
 
   console.log(`\n완료: ${today} 보고서 ${day.reports.length}건 | 토큰 in ${usage.input} / out ${usage.output}`);
 }

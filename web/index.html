@@ -26,6 +26,7 @@
           <select id="daySelect" aria-label="날짜 선택"></select>
         </label>
         <button id="nextDay" class="icon-btn" aria-label="다음 날짜">›</button>
+        <button id="bellBtn" class="icon-btn bell" aria-label="새 보고서 알림 설정">🔔</button>
       </nav>
     </div>
   </header>
@@ -64,6 +65,14 @@
   <footer class="wrap foot">
     <span id="updated"></span><br />요약은 AI가 만들어요. 중요한 판단 전에는 원문을 꼭 확인해 주세요.
   </footer>
+
+  <dialog id="pushDialog" class="sheet" aria-labelledby="pushTitle">
+    <div class="sheet-head">
+      <h2 id="pushTitle">🔔 새 보고서 알림</h2>
+      <button class="icon-btn" id="pushClose" aria-label="닫기">✕</button>
+    </div>
+    <div id="pushBody"></div>
+  </dialog>
 
   <button id="toTop" class="to-top" aria-label="맨 위로" hidden>↑</button>
 

@@ -57,6 +57,17 @@ npm run dev              # http://localhost:4173
 4. **Actions → daily-brief → Run workflow** 로 첫 실행 → 이후 매일 자동
 5. 배포된 주소를 휴대폰에서 열고 "홈 화면에 추가"하면 앱처럼 사용
 
+## 푸시 알림
+
+새 보고서가 수집되면 설치한 PWA로 알림이 와요 (Web Push, 서버 없음).
+
+1. 앱 오른쪽 위 🔔 → **알림 켜기** (아이폰은 홈 화면에 추가한 앱에서, iOS 16.4 이상)
+2. 화면에 나온 **알림 코드**를 복사해 GitHub **Settings → Secrets → Actions** 에 `PUSH_SUBSCRIPTIONS` 로 등록
+3. **Actions → push-test → Run workflow** 로 테스트 알림 확인
+
+- 여러 기기는 코드를 줄바꿈으로 이어서 한 Secret 에 넣어요.
+- 발송은 `collector/notify.js`, 키는 `web/push-config.json`(공개키)과 `VAPID_PRIVATE_KEY` Secret(비밀키)이에요.
+
 ## 수집 기관 (17곳)
 
 | 분야 | 기관 |

@@ -21,6 +21,8 @@ jobs:
   collect:
     runs-on: ubuntu-latest
     timeout-minutes: 60
+    outputs:
+      new_count: ${{ steps.run.outputs.new_count }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -33,6 +35,7 @@ jobs:
       - if: github.event_name != 'push'
         run: npm install -g @anthropic-ai/claude-code
       - name: 수집·요약
+        id: run
         if: github.event_name != 'push'
         env:
           CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
@@ -47,6 +50,13 @@ jobs:
           git add web/data
           git diff --cached --quiet || git commit -m "data: $(TZ=Asia/Seoul date +%F) brief"
           git push
+      - if: github.event_name != 'push'
+        uses: actions/upload-artifact@v4
+        with:
+          name: last-run
+          path: .last-run.json
+          include-hidden-files: true
+          if-no-files-found: ignore
       - uses: actions/upload-pages-artifact@v3
         with:
           path: web
@@ -60,3 +70,24 @@ jobs:
     steps:
       - id: deployment
         uses: actions/deploy-pages@v4
+
+  # 배포가 끝난 뒤 새 보고서가 있으면 푸시 알림
+  notify:
+    needs: [collect, deploy]
+    if: github.event_name != 'push' && needs.collect.outputs.new_count != '' && needs.collect.outputs.new_count != '0'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - uses: actions/download-artifact@v4
+        with:
+          name: last-run
+      - name: 푸시 알림
+        env:
+          VAPID_PRIVATE_KEY: ${{ secrets.VAPID_PRIVATE_KEY }}
+          PUSH_SUBSCRIPTIONS: ${{ secrets.PUSH_SUBSCRIPTIONS }}
+        run: node collector/notify.js

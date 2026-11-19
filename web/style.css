@@ -292,3 +292,36 @@ main { padding-top: 8px; padding-bottom: 24px; }
   .skeleton, .card.flash { animation: none; }
   .chev, .progress-fill { transition: none; }
 }
+
+/* ── 알림 설정 시트 ── */
+.bell { font-size: 16px; }
+.bell.on { background: var(--accent); border-color: var(--accent); }
+.sheet {
+  width: min(520px, calc(100vw - 24px)); max-height: calc(100dvh - 40px); overflow: auto;
+  border: 0; border-radius: 24px; padding: 20px; background: var(--surface); color: var(--text);
+  box-shadow: 0 20px 60px -10px rgb(0 0 0 / .35);
+}
+.sheet::backdrop { background: rgb(10 10 20 / .45); backdrop-filter: blur(2px); }
+.sheet-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.sheet-head h2 { margin: 0; font-size: 19px; font-weight: 800; letter-spacing: -0.03em; }
+.sheet p { margin: 0 0 12px; font-size: 15px; }
+.sheet .muted { color: var(--muted); font-size: 14px; }
+.steps { margin: 0 0 14px; padding: 0; list-style: none; counter-reset: s; display: grid; gap: 10px; }
+.steps li { counter-increment: s; position: relative; padding-left: 34px; font-size: 15px; }
+.steps li::before {
+  content: counter(s); position: absolute; left: 0; top: 0; width: 24px; height: 24px; border-radius: 8px;
+  background: var(--accent); color: #fff; font-size: 13px; font-weight: 800; display: grid; place-items: center;
+}
+.steps code { background: var(--surface-2); padding: 1px 6px; border-radius: 6px; font-size: 13px; }
+.code-box {
+  width: 100%; height: 84px; resize: none; font: 12px/1.4 ui-monospace, Menlo, monospace; color: var(--muted);
+  background: var(--surface-2); border: 1px solid var(--line); border-radius: 12px; padding: 10px; margin-bottom: 10px;
+}
+.btn-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 18px;
+  border-radius: 999px; border: 1px solid var(--line); background: var(--surface); font-size: 15px; font-weight: 700;
+  text-decoration: none; cursor: pointer;
+}
+.btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+.btn.ghost { background: transparent; color: var(--muted); }
