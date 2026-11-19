@@ -1,0 +1,62 @@
+name: daily-brief
+
+on:
+  schedule:
+    - cron: "0 3 * * *"   # 매일 12:00 KST (UTC 03:00). GitHub 사정에 따라 몇~수십 분 늦게 시작될 수 있어요
+  workflow_dispatch:       # Actions 탭에서 수동 실행
+  push:                    # 코드 수정을 push 하면 수집 없이 화면만 다시 배포
+    branches: [main]
+    paths-ignore: ["web/data/**", "README.md"]
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: daily-brief
+  cancel-in-progress: false
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      # 무료(구독) 모드: Claude Code CLI + `claude setup-token` 으로 만든 토큰
+      # API 모드로 쓰려면 ANTHROPIC_API_KEY Secret 을 등록하면 자동으로 API를 사용
+      - if: github.event_name != 'push'
+        run: npm install -g @anthropic-ai/claude-code
+      - name: 수집·요약
+        if: github.event_name != 'push'
+        env:
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          TZ: Asia/Seoul
+        run: node collector/run.js
+      - name: 데이터 커밋
+        if: github.event_name != 'push'
+        run: |
+          git config user.name "report-brief-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add web/data
+          git diff --cached --quiet || git commit -m "data: $(TZ=Asia/Seoul date +%F) brief"
+          git push
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: web
+
+  deploy:
+    needs: collect
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

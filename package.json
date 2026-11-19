@@ -1,0 +1,26 @@
+{
+  "name": "report-brief",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "collect": "node --env-file-if-exists=.env collector/run.js",
+    "preview": "node collector/run.js --no-ai",
+    "probe": "node collector/probe.js",
+    "dev": "node scripts/serve.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "private": "true",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^1.10.0",
+    "cheerio": "^1.2.0",
+    "pdf-parse": "^2.4.5"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

@@ -1,0 +1,205 @@
+{
+  "updatedAt": "2026-11-19T05:50:08.819Z",
+  "categories": {
+    "institute": "정출연·연구기관",
+    "consulting": "컨설팅펌",
+    "government": "국가부처·공공",
+    "association": "협회·단체"
+  },
+  "sources": [
+    {
+      "id": "kdi",
+      "name": "KDI 한국개발연구원",
+      "category": "institute",
+      "url": "https://www.kdi.re.kr/research/reportList",
+      "health": {
+        "ok": true,
+        "listed": 10,
+        "new": 0
+      }
+    },
+    {
+      "id": "kiep",
+      "name": "KIEP 대외경제정책연구원",
+      "category": "institute",
+      "url": "https://www.kiep.go.kr/gallery.es?mid=a10101010000&bid=0001",
+      "health": {
+        "ok": true,
+        "listed": 10,
+        "new": 0
+      }
+    },
+    {
+      "id": "spri",
+      "name": "SPRi 소프트웨어정책연구소",
+      "category": "institute",
+      "url": "https://spri.kr/posts?code=data_all",
+      "health": {
+        "ok": true,
+        "listed": 13,
+        "new": 0
+      }
+    },
+    {
+      "id": "kif",
+      "name": "한국금융연구원",
+      "category": "institute",
+      "url": "https://www.kif.re.kr/kif4/publication/pub_list?mid=10",
+      "health": {
+        "ok": true,
+        "listed": 3,
+        "new": 0
+      }
+    },
+    {
+      "id": "hri",
+      "name": "현대경제연구원",
+      "category": "institute",
+      "url": "https://www.hri.co.kr/kor/main",
+      "health": {
+        "ok": true,
+        "listed": 10,
+        "new": 2
+      }
+    },
+    {
+      "id": "kb-research",
+      "name": "KB경영연구소",
+      "category": "institute",
+      "url": "https://www.kbfg.com/kbresearch/report/reportList.do",
+      "health": {
+        "ok": true,
+        "listed": 9,
+        "new": 2
+      }
+    },
+    {
+      "id": "korea-expdoc",
+      "name": "정책브리핑 정책자료(부처 발간 보고서)",
+      "category": "government",
+      "url": "https://www.korea.kr/archive/expDocList.do",
+      "health": {
+        "ok": true,
+        "listed": 12,
+        "new": 2
+      }
+    },
+    {
+      "id": "bok-finstab",
+      "name": "한국은행 금융안정 조사연구",
+      "category": "government",
+      "url": "https://www.bok.or.kr/portal/bbs/B0000257/news.rss?menuNo=200327",
+      "health": {
+        "ok": true,
+        "listed": 20,
+        "new": 0
+      }
+    },
+    {
+      "id": "bok-stat",
+      "name": "한국은행 통계연구자료",
+      "category": "government",
+      "url": "https://www.bok.or.kr/portal/bbs/B0000233/news.rss?menuNo=200707",
+      "health": {
+        "ok": true,
+        "listed": 20,
+        "new": 0
+      }
+    },
+    {
+      "id": "bok-industry",
+      "name": "한국은행 주력산업 모니터링",
+      "category": "government",
+      "url": "https://www.bok.or.kr/portal/bbs/B0000357/news.rss?menuNo=201127",
+      "health": {
+        "ok": true,
+        "listed": 8,
+        "new": 0
+      }
+    },
+    {
+      "id": "mckinsey",
+      "name": "McKinsey & Company",
+      "category": "consulting",
+      "url": "https://www.mckinsey.com/insights/rss",
+      "health": {
+        "ok": true,
+        "listed": 15,
+        "new": 0
+      }
+    },
+    {
+      "id": "ey-korea",
+      "name": "EY한영",
+      "category": "consulting",
+      "url": "https://www.ey.com/ko_kr/insights",
+      "health": {
+        "ok": true,
+        "listed": 15,
+        "new": 0
+      }
+    },
+    {
+      "id": "bcg",
+      "name": "BCG",
+      "category": "consulting",
+      "url": "https://www.bcg.com/publications",
+      "health": {
+        "ok": true,
+        "listed": 7,
+        "new": 3
+      }
+    },
+    {
+      "id": "strategy-business",
+      "name": "PwC strategy+business",
+      "category": "consulting",
+      "url": "https://www.strategy-business.com/",
+      "health": {
+        "ok": true,
+        "listed": 5,
+        "new": 3
+      }
+    },
+    {
+      "id": "samil-pwc",
+      "name": "삼일PwC",
+      "category": "consulting",
+      "url": "https://www.pwc.com/kr/ko/insights.html",
+      "health": {
+        "ok": true,
+        "listed": 3,
+        "new": 3
+      }
+    },
+    {
+      "id": "kita",
+      "name": "한국무역협회 국제무역통상연구원",
+      "category": "association",
+      "url": "https://www.kita.net/researchTrade/report/reportMain/reportMainList.do",
+      "health": {
+        "ok": true,
+        "listed": 10,
+        "new": 1
+      }
+    },
+    {
+      "id": "kcci",
+      "name": "대한상공회의소",
+      "category": "association",
+      "url": "https://www.korcham.net/nCham/Service/Economy/appl/KcciReportList.asp",
+      "health": {
+        "ok": true,
+        "listed": 15,
+        "new": 0
+      }
+    }
+  ],
+  "days": [
+    {
+      "date": "2026-11-19",
+      "count": 27,
+      "headline": "수출·고용 호조 뒤에 양극화, AI는 결합·신중 전환기예요"
+    }
+  ]
+}
