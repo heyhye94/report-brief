@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-19T05:50:08.819Z",
+  "updatedAt": "2026-11-19T06:17:22.225Z",
   "categories": {
     "institute": "정출연·연구기관",
     "consulting": "컨설팅펌",
@@ -59,7 +59,7 @@
       "health": {
         "ok": true,
         "listed": 10,
-        "new": 2
+        "new": 0
       }
     },
     {
@@ -70,7 +70,7 @@
       "health": {
         "ok": true,
         "listed": 9,
-        "new": 2
+        "new": 0
       }
     },
     {
@@ -81,7 +81,7 @@
       "health": {
         "ok": true,
         "listed": 12,
-        "new": 2
+        "new": 0
       }
     },
     {
@@ -145,9 +145,8 @@
       "category": "consulting",
       "url": "https://www.bcg.com/publications",
       "health": {
-        "ok": true,
-        "listed": 7,
-        "new": 3
+        "ok": false,
+        "error": "HTTP 403 https://www.bcg.com/publications"
       }
     },
     {
@@ -158,7 +157,7 @@
       "health": {
         "ok": true,
         "listed": 5,
-        "new": 3
+        "new": 0
       }
     },
     {
@@ -167,9 +166,8 @@
       "category": "consulting",
       "url": "https://www.pwc.com/kr/ko/insights.html",
       "health": {
-        "ok": true,
-        "listed": 3,
-        "new": 3
+        "ok": false,
+        "error": "HTTP 403 https://www.pwc.com/kr/ko/insights.html"
       }
     },
     {
@@ -180,7 +178,7 @@
       "health": {
         "ok": true,
         "listed": 10,
-        "new": 1
+        "new": 0
       }
     },
     {
