@@ -1,5 +1,5 @@
 // 네트워크 우선: 온라인이면 항상 최신(배포 직후 바로 반영), 오프라인이면 마지막으로 받은 버전을 캐시에서 제공
-const CACHE = "report-brief-v5";
+const CACHE = "report-brief-v6";
 const SHELL_FILES = ["./", "index.html", "style.css", "app.js", "manifest.webmanifest", "icons/icon.svg", "icons/icon-192.png", "icons/icon-512.png"];
 
 self.addEventListener("install", (e) => {

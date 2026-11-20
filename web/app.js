@@ -1,5 +1,7 @@
 const $ = (s, el = document) => el.querySelector(s);
-const state = { index: null, day: null, cat: "all", topic: "all", q: "" };
+const SORT_KEY = "rb-sort";
+const state = { index: null, day: null, cat: "all", topic: "all", q: "", sort: loadSort() };
+function loadSort() { try { return localStorage.getItem(SORT_KEY) === "latest" ? "latest" : "pick"; } catch { return "pick"; } }
 
 const CAT_ICON = { institute: "🔬", consulting: "💼", government: "🏢", association: "🤝" };
 const TOPICS = [
@@ -61,6 +63,11 @@ async function init() {
   $("#list").replaceChildren(el("div", { class: "skeleton" }), el("div", { class: "skeleton" }));
 
   $("#searchBtn").addEventListener("click", toggleSearch);
+  $("#sortBtn").addEventListener("click", () => {
+    state.sort = state.sort === "latest" ? "pick" : "latest";
+    try { localStorage.setItem(SORT_KEY, state.sort); } catch {}
+    renderList();
+  });
   $("#search").addEventListener("input", (e) => { state.q = e.target.value.trim().toLowerCase(); renderList(); });
   const toTop = $("#toTop");
   toTop.addEventListener("click", () => scrollTo({ top: 0, behavior: "smooth" }));
@@ -326,7 +333,14 @@ function searchFor(k) {
 }
 
 function renderList() {
-  const items = state.day.reports.filter(matches);
+  let items = state.day.reports.filter(matches);
+  // 최신순: 발간일 내림차순, 발간일을 알 수 없는 보고서는 뒤로 (원래 순서 유지)
+  if (state.sort === "latest") items = items.map((r, i) => [r, i]).sort(([a, i], [b, j]) =>
+    (b.publishedAt ?? "").localeCompare(a.publishedAt ?? "") || i - j).map(([r]) => r);
+  const sortBtn = $("#sortBtn");
+  sortBtn.textContent = state.sort === "latest" ? "↓ 최신순" : "≡ 기관순";
+  sortBtn.classList.toggle("on", state.sort === "latest");
+  sortBtn.setAttribute("aria-pressed", String(state.sort === "latest"));
   $("#list").replaceChildren(...items.map(card));
   const empty = $("#empty");
   empty.hidden = items.length > 0;
