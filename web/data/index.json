@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-20T11:07:18.364Z",
+  "updatedAt": "2026-11-21T10:48:03.595Z",
   "categories": {
     "institute": "정출연·연구기관",
     "consulting": "컨설팅펌",
@@ -24,8 +24,9 @@
       "category": "institute",
       "url": "https://www.kiep.go.kr/gallery.es?mid=a10101010000&bid=0001",
       "health": {
-        "ok": false,
-        "error": "The operation was aborted due to timeout"
+        "ok": true,
+        "listed": 10,
+        "new": 0
       }
     },
     {
@@ -46,7 +47,7 @@
       "url": "https://www.kif.re.kr/kif4/publication/pub_list?mid=10",
       "health": {
         "ok": true,
-        "listed": 2,
+        "listed": 1,
         "new": 1
       }
     },
@@ -124,7 +125,7 @@
       "health": {
         "ok": true,
         "listed": 15,
-        "new": 5
+        "new": 2
       }
     },
     {
@@ -135,7 +136,7 @@
       "health": {
         "ok": true,
         "listed": 15,
-        "new": 1
+        "new": 0
       }
     },
     {
@@ -155,8 +156,8 @@
       "url": "https://www.strategy-business.com/",
       "health": {
         "ok": true,
-        "listed": 7,
-        "new": 2
+        "listed": 9,
+        "new": 5
       }
     },
     {
@@ -193,6 +194,11 @@
     }
   ],
   "days": [
+    {
+      "date": "2026-11-21",
+      "count": 4,
+      "headline": "산업 경계가 흔들리며 새 판이 짜여요"
+    },
     {
       "date": "2026-11-20",
       "count": 5,
