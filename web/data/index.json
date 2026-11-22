@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-21T10:48:03.595Z",
+  "updatedAt": "2026-11-22T10:54:54.741Z",
   "categories": {
     "institute": "정출연·연구기관",
     "consulting": "컨설팅펌",
@@ -48,7 +48,7 @@
       "health": {
         "ok": true,
         "listed": 1,
-        "new": 1
+        "new": 0
       }
     },
     {
@@ -125,7 +125,7 @@
       "health": {
         "ok": true,
         "listed": 15,
-        "new": 2
+        "new": 0
       }
     },
     {
@@ -156,8 +156,8 @@
       "url": "https://www.strategy-business.com/",
       "health": {
         "ok": true,
-        "listed": 9,
-        "new": 5
+        "listed": 7,
+        "new": 2
       }
     },
     {
