@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-22T10:54:54.741Z",
+  "updatedAt": "2026-11-23T12:00:40.470Z",
   "categories": {
     "institute": "정출연·연구기관",
     "consulting": "컨설팅펌",
@@ -59,7 +59,7 @@
       "health": {
         "ok": true,
         "listed": 10,
-        "new": 0
+        "new": 1
       }
     },
     {
@@ -156,7 +156,7 @@
       "url": "https://www.strategy-business.com/",
       "health": {
         "ok": true,
-        "listed": 7,
+        "listed": 8,
         "new": 2
       }
     },
@@ -189,11 +189,16 @@
       "health": {
         "ok": true,
         "listed": 15,
-        "new": 0
+        "new": 1
       }
     }
   ],
   "days": [
+    {
+      "date": "2026-11-23",
+      "count": 3,
+      "headline": "통념을 걷고 선택지를 넓혀 보라고 해요"
+    },
     {
       "date": "2026-11-21",
       "count": 4,

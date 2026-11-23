@@ -156,6 +156,7 @@
       "no=2981"
     ],
     "kcci": [
+      "SEQ_NO_C010=20120946214",
       "SEQ_NO_C010=20120946194",
       "SEQ_NO_C010=20120946174",
       "SEQ_NO_C010=20120946154",
@@ -187,6 +188,7 @@
       "docId=41929"
     ],
     "hri": [
+      "https://www.hri.co.kr/kor/report/view/97840",
       "https://www.hri.co.kr/kor/report/view/97839",
       "https://www.hri.co.kr/kor/report/view/97838",
       "https://www.hri.co.kr/kor/report/view/97837",
@@ -223,14 +225,16 @@
       "https://www.strategy-business.com/article/Focusing-on-missions",
       "https://www.strategy-business.com/article/Power-moves",
       "https://www.strategy-business.com/article/00128",
+      "https://www.strategy-business.com/article/07402",
+      "https://www.strategy-business.com/article/How-Fearless-Organizations-Succeed",
+      "https://www.strategy-business.com/article/11518",
+      "https://www.strategy-business.com/article/Who-Will-Insure-Self-Driving-Cars",
       "https://www.strategy-business.com/article/Why-do-large-projects-go-over-budget",
       "https://www.strategy-business.com/article/07306",
-      "https://www.strategy-business.com/article/How-Fearless-Organizations-Succeed",
       "https://www.strategy-business.com/article/09306",
       "https://www.strategy-business.com/article/00275",
       "https://www.strategy-business.com/article/00318",
       "https://www.strategy-business.com/article/A-Guide-to-Organization-Design",
-      "https://www.strategy-business.com/article/Who-Will-Insure-Self-Driving-Cars",
       "https://www.strategy-business.com/article/Using-Neuroscience-to-Make-Feedback-Work-and-Feel-Better",
       "https://www.strategy-business.com/article/Robotic-seals-and-bionic-limbs-How-Japan-is-creating-opportunity-for-medtech"
     ],
