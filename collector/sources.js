@@ -21,6 +21,8 @@ export const SOURCES = [
     url: "https://www.kdi.re.kr/research/reportList",
     selectors: { item: "li:has(> a[href*='reportView?pub_no='])", title: ".rpt_tit strong", link: "a[href*='reportView?pub_no=']" },
     idFrom: "pub_no",
+    detailDate: ".view_fixed-info .center_guide span",
+    pdfTemplate: { regex: "location\\.href='(/file/download\\?atch_no=[^']+)'", url: "$1" },
   },
   {
     id: "kiep",
@@ -38,6 +40,7 @@ export const SOURCES = [
     type: "html",
     url: "https://spri.kr/posts?code=data_all",
     selectors: { item: "a[href*='/posts/view/']" },
+    pdfTemplate: { regex: "file_down\\('(\\d+)'\\)", url: "/download/$1" },
   },
   {
     id: "kif",

@@ -22,7 +22,13 @@ const MAX_PER_SOURCE = Number(args["max-per-source"] ?? 5);
 const SEED_PER_SOURCE = 2; // 처음 추가된 기관은 최신 2건만 요약하고 나머지는 '본 것'으로 처리
 const only = args.only ? String(args.only).split(",") : null;
 
-const today = new Intl.DateTimeFormat("sv-SE", { timeZone: "Asia/Seoul" }).format(new Date());
+const KST = new Intl.DateTimeFormat("sv-SE", { timeZone: "Asia/Seoul" });
+const today = KST.format(new Date());
+// 발간 42시간 이내 자료만 포함. 발간일은 '날짜'만 알 수 있으므로 그날 0시(KST)가
+// 지금으로부터 42시간 안에 있는 날짜만 받는다 → 낮 12시 실행이면 어제·오늘 발간분
+const WINDOW_HOURS = 42;
+const cutoff = KST.format(new Date(Date.now() - (WINDOW_HOURS - 24) * 3600e3));
+const normTitle = (t) => (t || "").toLowerCase().normalize("NFKC").replace(/[\s\p{P}\p{S}]/gu, "");
 
 async function readJson(file, fallback) {
   try {
@@ -51,12 +57,12 @@ async function main() {
       const seen = new Set(state.seen[source.id] || []);
       const isFirst = !state.seen[source.id];
       let fresh = items.filter((it) => !seen.has(it.id));
-      if (isFirst) {
-        // 첫 수집: 최근 14일 이내(날짜 미상 포함) 최신 2건만
-        const cutoff = new Date(Date.now() - 14 * 864e5).toISOString().slice(0, 10);
-        fresh = fresh.filter((it) => !it.date || it.date >= cutoff).slice(0, source.seed ?? SEED_PER_SOURCE);
-      }
+      // 목록에 날짜가 있으면 42시간 기준을 바로 적용 (날짜 없는 항목은 상세 페이지에서 확인)
+      const old = fresh.filter((it) => it.date && it.date < cutoff).length;
+      fresh = fresh.filter((it) => !it.date || it.date >= cutoff);
+      if (isFirst) fresh = fresh.slice(0, source.seed ?? SEED_PER_SOURCE);
       fresh = fresh.slice(0, MAX_PER_SOURCE);
+      if (old) console.log(`   (${cutoff} 이전 발간 ${old}건 제외)`);
       health[source.id] = { ok: true, listed: items.length, new: fresh.length };
       console.log(`${source.id}: 목록 ${items.length}건, 신규 ${fresh.length}건${isFirst ? " (첫 수집)" : ""}`);
       for (const it of fresh) queue.push({ item: it, source });
@@ -83,15 +89,41 @@ async function main() {
   const usage = { input: 0, output: 0 };
   const added = []; // 이번 실행에서 새로 요약된 보고서 (푸시 알림용)
 
+  // 다른 날짜에 이미 실린 보고서는 다시 싣지 않음 (같은 링크·ID·제목)
+  const known = { ids: new Set(), urls: new Set(), titles: new Set() };
+  const remember = (r) => { known.ids.add(r.id); known.urls.add(r.url); known.titles.add(normTitle(r.title)); };
+  for (const f of await fs.readdir(path.join(DATA_DIR, "days")).catch(() => [])) {
+    if (f === `${today}.json`) continue;
+    for (const r of (await readJson(path.join(DATA_DIR, "days", f), { reports: [] })).reports) remember(r);
+  }
+  for (const r of day.reports) remember(r);
+  const retry = (source, item) => { state.seen[source.id] = (state.seen[source.id] || []).filter((id) => id !== item.id); };
+
   for (const { item, source } of queue) {
+    const rid = shortId(source.id + item.id);
+    if (known.urls.has(item.url) || known.titles.has(normTitle(item.title)) || (known.ids.has(rid) && !day.reports.some((r) => r.id === rid))) {
+      console.log(`   – 이미 실린 보고서, 제외: ${item.title}`);
+      continue;
+    }
     let detail = null;
-    if (!source.skipDetail && !NO_AI) {
+    if (!source.skipDetail && (!NO_AI || !item.date)) {
       try {
         detail = await fetchDetail(item, source);
       } catch (e) {
         console.warn(`   본문 실패 [${source.id}] ${item.title}: ${e.message}`);
       }
     }
+    const date = item.date ?? detail?.date ?? detail?.pdfDate ?? null;
+    if (!date) {
+      console.log(`   – 발간일 확인 불가, 제외: ${item.title}`);
+      if (!detail) retry(source, item); // 페이지를 못 읽었으면 다음 실행에서 다시 확인
+      continue;
+    }
+    if (date < cutoff) {
+      console.log(`   – ${date} 발간(42시간 경과), 제외: ${item.title}`);
+      continue;
+    }
+    item.date = date;
     try {
       const { data, usage: u } = NO_AI
         ? { data: { is_report: true, pending: true }, usage: { input_tokens: 0, output_tokens: 0 } }
@@ -122,12 +154,13 @@ async function main() {
         partial: !!detail?.truncated,
         summary: summary.pending ? null : summary,
       });
+      remember(day.reports.at(-1));
       if (!summary.pending) added.push({ title: item.title, sourceName: source.name, topic: topic ?? null });
       console.log(`   ✓ ${source.id}: ${item.title}`);
     } catch (e) {
       console.warn(`   요약 실패 [${source.id}] ${item.title}: ${e.message}`);
       // 실패한 항목은 다음 실행에서 재시도하도록 '본 것' 목록에서 제거
-      state.seen[source.id] = (state.seen[source.id] || []).filter((id) => id !== item.id);
+      retry(source, item);
     }
   }
 

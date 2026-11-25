@@ -40,7 +40,8 @@ const clean = (s) => (s || "").replace(/\s+/g, " ").trim();
 export function parseKoDate(text) {
   if (!text) return null;
   // 문서번호 같은 숫자열이 날짜로 읽히지 않도록, 실제 달력에 있는 날짜만 받는다
-  for (const m of text.matchAll(/(20\d{2})\s*[.\-/년]\s*(\d{1,2})\s*[.\-/월]\s*(\d{1,2})/g)) {
+  // '2026년 2/4분기' 같은 분기 표기는 날짜가 아니므로 제외
+  for (const m of text.matchAll(/(20\d{2})\s*[.\-/년]\s*(\d{1,2})\s*[.\-/월]\s*(\d{1,2})(?!\d)(?!\s*분기)/g)) {
     const [y, mo, d] = [+m[1], +m[2], +m[3]];
     const dt = new Date(Date.UTC(y, mo - 1, d));
     if (mo >= 1 && mo <= 12 && dt.getUTCDate() === d) return `${m[1]}-${m[2].padStart(2, "0")}-${m[3].padStart(2, "0")}`;
@@ -48,9 +49,50 @@ export function parseKoDate(text) {
   return null;
 }
 
-function toIsoDate(d) {
+const KST_DATE = new Intl.DateTimeFormat("sv-SE", { timeZone: "Asia/Seoul" });
+export function toIsoDate(d) {
+  if (!d) return null;
+  d = String(d).trim();
+  if (/^\d{4}-\d{2}-\d{2}$/.test(d)) return d; // 날짜만 있으면 그대로
   const t = new Date(d);
-  return isNaN(t) ? parseKoDate(d) : t.toISOString().slice(0, 10);
+  return isNaN(t) || t.getFullYear() < 1990 ? parseKoDate(d) : KST_DATE.format(t);
+}
+
+/**
+ * 상세 페이지에서 발간일 찾기 (최초 발행일 우선 — 예전 글을 '수정'해 다시 올린 경우 걸러내기 위해)
+ * 1) 소스별 selector  2) 메타/구조화 데이터  3) <time>  4) '발간일·등록일 …' 라벨 옆 날짜
+ */
+export function extractPageDate($, html, source = {}) {
+  if (source.detailDate) {
+    const d = parseKoDate($(source.detailDate).first().text());
+    if (d) return d;
+  }
+  const meta = (names) => {
+    for (const n of names) {
+      const v = $(`meta[property="${n}"], meta[name="${n}"], meta[itemprop="${n}"]`).first().attr("content");
+      const d = toIsoDate(v);
+      if (d) return d;
+    }
+    return null;
+  };
+  const first = meta(["firstpublishdate", "citation_publication_date", "DC.date.issued"]);
+  if (first) return first;
+  const ld = /"datePublished"\s*:\s*"([^"]+)"/.exec(html);
+  if (ld && toIsoDate(ld[1])) return toIsoDate(ld[1]);
+  const m = meta(["article:published_time", "pwcReleaseDate", "datePublished", "date", "DC.date", "pubdate", "publish_date"]);
+  if (m) return m;
+  const t = $("time[datetime]").first().attr("datetime") || $("time").first().text();
+  if (toIsoDate(t)) return toIsoDate(t);
+  const text = clean($("body").text());
+  const lab = /(발간일|발행일|게시일|등록일|작성일|공개일|날짜)\s*[:：]?\s*(20\d{2}\s*[.\-/년]\s*\d{1,2}\s*[.\-/월]\s*\d{1,2})/.exec(text);
+  return lab ? parseKoDate(lab[2]) : null;
+}
+
+/** PDF 문서 정보의 작성일 (D:20261113...) */
+function pdfInfoDate(info) {
+  const v = info?.info?.CreationDate || info?.info?.ModDate || "";
+  const m = /D:(\d{4})(\d{2})(\d{2})/.exec(v);
+  return m ? `${m[1]}-${m[2]}-${m[3]}` : null;
 }
 
 /** 소스 설정에 따라 최신 보고서 목록을 반환: [{id,title,url,date,org}] */
@@ -129,10 +171,11 @@ export async function fetchDetail(item, source, { maxChars = 40000, pdfPages = 2
   } else {
     const html = await fetchText(item.url);
     const $ = cheerio.load(html);
+    out.date = extractPageDate($, html, source);
+    out.pdfUrl = findPdfLink($, item.url, source); // onclick 링크를 읽어야 해서 script 제거 전에
     $("script, style, nav, header, footer, noscript, iframe").remove();
     const main = source.detailSelector ? $(source.detailSelector).first() : $("main, article, #content, .content, body").first();
     out.pageText = clean(main.text()).slice(0, 12000);
-    out.pdfUrl = findPdfLink($, item.url, source);
   }
   if (out.pdfUrl) {
     try {
@@ -140,6 +183,9 @@ export async function fetchDetail(item, source, { maxChars = 40000, pdfPages = 2
       const buf = Buffer.from(await res.arrayBuffer());
       if (buf.subarray(0, 4).toString() === "%PDF") {
         const parser = new PDFParse({ data: buf });
+        if (!out.date) {
+          try { out.pdfDate = pdfInfoDate(await parser.getInfo()); } catch {}
+        }
         const info = await parser.getText({ first: pdfPages });
         out.pdfText = clean(info.text);
         out.pdfPages = info.total;
@@ -161,14 +207,16 @@ function findPdfLink($, base, source) {
   // javascript:fn_downFile('ID','0') 처럼 스크립트로 내려받는 사이트용
   if (source.pdfTemplate) {
     const re = new RegExp(source.pdfTemplate.regex);
-    for (const a of $("a[href]").toArray()) {
-      const m = re.exec($(a).attr("href"));
+    for (const a of $("a[href], [onclick]").toArray()) {
+      const m = re.exec(`${$(a).attr("href") || ""} ${$(a).attr("onclick") || ""}`);
       if (m) return new URL(source.pdfTemplate.url.replace(/\$(\d)/g, (_, i) => m[+i]), base).toString();
     }
   }
   const cands = [];
-  $("a[href]").each((_, a) => {
-    const href = $(a).attr("href");
+  $("a[href], button[onclick], a[onclick]").each((_, a) => {
+    // onclick="location.href='/file/download?...'" 형태도 링크로 취급
+    const oc = /location\.href\s*=\s*['"]([^'"]+)['"]/.exec($(a).attr("onclick") || "");
+    const href = oc ? oc[1] : $(a).attr("href");
     const text = clean($(a).text()) + " " + ($(a).attr("title") || "");
     if (!href || href.startsWith("javascript")) return;
     let score = 0;

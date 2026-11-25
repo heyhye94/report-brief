@@ -196,28 +196,23 @@
   "days": [
     {
       "date": "2026-11-24",
-      "count": 10,
-      "headline": "성장은 일부에 쏠리고, AI는 일하는 방식이 갈라요"
+      "count": 3,
+      "headline": "숫자는 늘었는데, 속을 보면 쏠림이 보여요"
     },
     {
       "date": "2026-11-23",
-      "count": 3,
-      "headline": "통념을 걷고 선택지를 넓혀 보라고 해요"
-    },
-    {
-      "date": "2026-11-21",
-      "count": 4,
-      "headline": "산업 경계가 흔들리며 새 판이 짜여요"
+      "count": 1,
+      "headline": null
     },
     {
       "date": "2026-11-20",
-      "count": 5,
-      "headline": "기술과 규제의 혜택이 누구에게 가는지가 관건이에요"
+      "count": 1,
+      "headline": null
     },
     {
       "date": "2026-11-19",
-      "count": 27,
-      "headline": "AI 투자와 통상 변수 속, 성장의 쏠림이 커져요"
+      "count": 7,
+      "headline": "AI는 운영방식을, 성장은 자본보다 역량이 먼저예요"
     }
   ]
 }
