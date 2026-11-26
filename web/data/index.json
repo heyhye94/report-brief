@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-25T12:20:45.554Z",
+  "updatedAt": "2026-11-26T12:03:21.312Z",
   "categories": {
     "institute": "정출연·연구기관",
     "consulting": "컨설팅펌",
@@ -79,8 +79,9 @@
       "category": "government",
       "url": "https://www.korea.kr/archive/expDocList.do",
       "health": {
-        "ok": false,
-        "error": "fetch failed"
+        "ok": true,
+        "listed": 11,
+        "new": 0
       }
     },
     {
@@ -124,7 +125,7 @@
       "health": {
         "ok": true,
         "listed": 15,
-        "new": 0
+        "new": 1
       }
     },
     {
@@ -155,8 +156,8 @@
       "url": "https://www.strategy-business.com/",
       "health": {
         "ok": true,
-        "listed": 8,
-        "new": 0
+        "listed": 7,
+        "new": 2
       }
     },
     {
@@ -177,7 +178,7 @@
       "health": {
         "ok": true,
         "listed": 10,
-        "new": 1
+        "new": 0
       }
     },
     {
@@ -188,11 +189,16 @@
       "health": {
         "ok": true,
         "listed": 15,
-        "new": 1
+        "new": 2
       }
     }
   ],
   "days": [
+    {
+      "date": "2026-11-26",
+      "count": 1,
+      "headline": null
+    },
     {
       "date": "2026-11-25",
       "count": 1,
